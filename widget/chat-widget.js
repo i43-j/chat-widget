@@ -1,4 +1,3 @@
-
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -74,9 +73,6 @@
             this.elements.panel.setAttribute('aria-modal', 'true');
             this.elements.panel.innerHTML = `
                 <div class="cbw-chat-widget-header">
-                    <div class="cbw-chat-widget-logo">
-                        ${this.options.siteName.charAt(0).toUpperCase()}
-                    </div>
                     <h3 class="cbw-chat-widget-title">Ask us anything</h3>
                     <button class="cbw-chat-widget-phone" aria-label="Start voice call">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -184,7 +180,8 @@
 
         openChat() {
             this.isOpen = true;
-            this.elements.panel.classList.add('cbw-open');
+            this.elements.panel.classList.add('cbw-open', 'cbw-opening');
+            this.elements.panel.classList.remove('cbw-closing');
             this.elements.panel.setAttribute('aria-hidden', 'false');
             
             // Clear unread badge when opening
@@ -193,13 +190,19 @@
             // Focus management
             setTimeout(() => {
                 this.elements.input.focus();
-            }, 300);
+                this.elements.panel.classList.remove('cbw-opening');
+            }, 200);
         }
 
         closeChat() {
-            this.isOpen = false;
-            this.elements.panel.classList.remove('cbw-open');
-            this.elements.panel.setAttribute('aria-hidden', 'true');
+            this.elements.panel.classList.add('cbw-closing');
+            this.elements.panel.classList.remove('cbw-opening');
+            
+            setTimeout(() => {
+                this.isOpen = false;
+                this.elements.panel.classList.remove('cbw-open', 'cbw-closing');
+                this.elements.panel.setAttribute('aria-hidden', 'true');
+            }, 200);
         }
 
         addWelcomeMessage() {
