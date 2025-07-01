@@ -1,0 +1,61 @@
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .cbw-chat-widget-button {
+        transition: opacity 0.2s;
+    }
+    
+    .cbw-chat-widget-button:hover {
+        transform: none;
+    }
+    
+    .cbw-chat-widget-button:active {
+        transform: none;
+    }
+    
+    .cbw-chat-widget-panel {
+        transform: none;
+        transition: opacity 0.3s;
+    }
+    
+    .cbw-chat-widget-panel.cbw-open {
+        transform: none;
+    }
+    
+    .cbw-chat-widget-message {
+        animation: cbw-fadeIn 0.3s ease-out;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .cbw-chat-widget-panel {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        bottom: 88px;
+    }
+    
+    .cbw-chat-widget-button {
+        right: 12px;
+        bottom: 12px;
+    }
+}
+
+/* Accessibility */
+.cbw-chat-widget-panel[aria-hidden="true"] {
+    display: none;
+}
+
+.cbw-chat-widget-messages[aria-live="polite"] {
+    /* Screen reader support */
+}
+
+/* Focus management */
+.cbw-chat-widget-input:focus,
+.cbw-chat-widget-phone:focus,
+.cbw-chat-widget-send:focus,
+.cbw-chat-widget-button:focus {
+    outline: 2px solid var(--cbw-accent);
+    outline-offset: 2px;
+}

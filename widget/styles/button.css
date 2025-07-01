@@ -1,0 +1,57 @@
+
+/* Chat Button */
+.cbw-chat-widget-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: var(--cbw-accent);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--cbw-shadow-large);
+    z-index: 999999;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--cbw-font);
+    position: relative;
+}
+
+.cbw-chat-widget-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(176, 16, 19, 0.3);
+}
+
+.cbw-chat-widget-button:active {
+    transform: scale(0.95);
+}
+
+.cbw-chat-widget-button svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+/* Unread Badge */
+.cbw-chat-widget-button::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--cbw-accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cbw-chat-widget-button.cbw-has-unread::after {
+    opacity: 1;
+    transform: scale(1);
+}
