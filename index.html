@@ -1,24 +1,99 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chat-bloom-buddy</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Widget Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./widget/chat-widget.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .demo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .demo-title {
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .demo-subtitle {
+            color: #666;
+            font-weight: 300;
+        }
+        .demo-content {
+            line-height: 1.8;
+            color: #555;
+        }
+        .demo-section {
+            margin-bottom: 30px;
+        }
+        .demo-section h3 {
+            color: #B01013;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">AI Chat Widget Demo</h1>
+            <p class="demo-subtitle">Experience our embeddable customer support widget</p>
+        </div>
+        
+        <div class="demo-content">
+            <div class="demo-section">
+                <h3>About This Widget</h3>
+                <p>This is a standalone, embeddable AI chatbot widget that can be integrated into any website with just two tags and one initialization call. The widget provides real-time chat functionality with streaming responses and voice call capabilities.</p>
+            </div>
+            
+            <div class="demo-section">
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Lightweight and fast (< 50KB gzipped)</li>
+                    <li>Fully responsive design</li>
+                    <li>Real-time message streaming</li>
+                    <li>Voice call integration ready</li>
+                    <li>Accessible with focus management</li>
+                    <li>Customizable via CSS variables</li>
+                </ul>
+            </div>
+            
+            <div class="demo-section">
+                <h3>Try It Out</h3>
+                <p>Click the chat button in the bottom-right corner to start a conversation. Try asking questions or click the phone icon to test the voice call feature.</p>
+            </div>
+        </div>
+    </div>
 
-    <meta property="og:title" content="chat-bloom-buddy" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
-
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <script src="./widget/chat-widget.js"></script>
+    <script>
+        // Initialize the chat widget
+        initChatWidget({
+            apiEndpoint: '/api/chat',
+            streamEndpoint: '/api/chat/stream',
+            position: 'bottom-right',
+            siteName: 'Demo Company',
+            welcomeMessage: 'Hi! How can we help you today?'
+        });
+    </script>
+</body>
 </html>
