@@ -23,6 +23,8 @@
             this.sessionId = this.generateSessionId();
             this.messages = [];
             this.elements = {};
+            this.hasUnreadMessages = false;
+            this.typingElement = null;
 
             this.init();
         }
@@ -52,6 +54,8 @@
             this.elements.panel = document.createElement('div');
             this.elements.panel.className = 'chat-widget-panel';
             this.elements.panel.setAttribute('aria-hidden', 'true');
+            this.elements.panel.setAttribute('role', 'dialog');
+            this.elements.panel.setAttribute('aria-modal', 'true');
             this.elements.panel.innerHTML = `
                 <div class="chat-widget-header">
                     <div class="chat-widget-logo">
@@ -105,13 +109,17 @@
                 this.sendMessage();
             });
 
-            // Handle textarea auto-resize and Enter key
+            // Handle textarea auto-resize and keyboard shortcuts
             this.elements.input.addEventListener('input', () => {
                 this.autoResizeTextarea();
+                this.updateSendButtonState();
             });
 
             this.elements.input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     this.sendMessage();
                 }
@@ -131,13 +139,25 @@
                 }
             });
 
-            // Escape key to close
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.isOpen) {
                     this.closeChat();
                     this.elements.button.focus();
                 }
             });
+        }
+
+        // Update send button visual state based on input content
+        updateSendButtonState() {
+            const hasContent = this.elements.input.value.trim().length > 0;
+            this.elements.sendButton.classList.toggle('active', hasContent);
+        }
+
+        // Show/hide unread badge
+        setUnreadBadge(show) {
+            this.hasUnreadMessages = show;
+            this.elements.button.classList.toggle('has-unread', show);
         }
 
         toggleChat() {
@@ -152,6 +172,9 @@
             this.isOpen = true;
             this.elements.panel.classList.add('open');
             this.elements.panel.setAttribute('aria-hidden', 'false');
+            
+            // Clear unread badge when opening
+            this.setUnreadBadge(false);
             
             // Focus management
             setTimeout(() => {
@@ -187,6 +210,11 @@
 
             if (!isTyping) {
                 this.messages.push({ sender, content, timestamp: Date.now() });
+                
+                // Show unread badge if panel is closed and it's an assistant message
+                if (!this.isOpen && sender === 'assistant' && this.messages.length > 1) {
+                    this.setUnreadBadge(true);
+                }
             }
 
             return messageElement;
@@ -207,20 +235,24 @@
             // Clear input and disable send button
             this.elements.input.value = '';
             this.elements.sendButton.disabled = true;
+            this.updateSendButtonState();
             this.autoResizeTextarea();
 
             // Add user message
             this.addMessage('user', message);
 
             // Show typing indicator
-            const typingElement = this.addMessage('assistant', '', true);
+            this.typingElement = this.addMessage('assistant', '', true);
 
             try {
                 // Simulate API call - replace with actual implementation
-                await this.simulateApiCall(message, typingElement);
+                await this.simulateApiCall(message);
             } catch (error) {
                 console.error('Chat API Error:', error);
-                typingElement.remove();
+                if (this.typingElement) {
+                    this.typingElement.remove();
+                    this.typingElement = null;
+                }
                 this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
             } finally {
                 this.elements.sendButton.disabled = false;
@@ -228,12 +260,15 @@
             }
         }
 
-        async simulateApiCall(message, typingElement) {
+        async simulateApiCall(message) {
             // Simulate network delay
             await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
 
             // Remove typing indicator
-            typingElement.remove();
+            if (this.typingElement) {
+                this.typingElement.remove();
+                this.typingElement = null;
+            }
 
             // Simulate streaming response
             const responses = [

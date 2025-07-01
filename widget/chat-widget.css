@@ -24,11 +24,12 @@
     cursor: pointer;
     box-shadow: var(--chat-shadow-large);
     z-index: 999999;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--chat-font);
+    position: relative;
 }
 
 .chat-widget-button:hover {
@@ -46,6 +47,27 @@
     fill: white;
 }
 
+/* Unread Badge */
+.chat-widget-button::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--chat-accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-widget-button.has-unread::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
 /* Chat Panel */
 .chat-widget-panel {
     position: fixed;
@@ -61,14 +83,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transform: translateY(20px) scale(0.95);
-    opacity: 0;
+    transform: translateY(12px);
+    opacity: 0.92;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chat-widget-panel.open {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     opacity: 1;
     visibility: visible;
 }
@@ -230,6 +252,11 @@
     justify-content: center;
     transition: all 0.2s;
     flex-shrink: 0;
+    opacity: 0.4;
+}
+
+.chat-widget-send.active {
+    opacity: 1;
 }
 
 .chat-widget-send:hover {
@@ -323,7 +350,8 @@
 /* Focus management */
 .chat-widget-input:focus,
 .chat-widget-phone:focus,
-.chat-widget-send:focus {
+.chat-widget-send:focus,
+.chat-widget-button:focus {
     outline: 2px solid var(--chat-accent);
     outline-offset: 2px;
 }
