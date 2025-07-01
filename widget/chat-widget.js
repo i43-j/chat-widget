@@ -7,6 +7,7 @@
     'use strict';
 
     let chatWidget = null;
+    let streamModule = null;
 
     class ChatWidget {
         constructor(options = {}) {
@@ -25,24 +26,39 @@
             this.elements = {};
             this.hasUnreadMessages = false;
             this.typingElement = null;
+            this.errorToast = null;
 
             this.init();
         }
 
         generateSessionId() {
-            return 'chat_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            return 'cbw_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
         }
 
         init() {
+            this.detectColorScheme();
+            this.detectReducedMotion();
             this.createElements();
             this.attachEventListeners();
             this.addWelcomeMessage();
         }
 
+        detectColorScheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-cbw-theme', 'dark');
+            }
+        }
+
+        detectReducedMotion() {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.documentElement.setAttribute('data-cbw-reduced-motion', 'true');
+            }
+        }
+
         createElements() {
             // Create chat button
             this.elements.button = document.createElement('button');
-            this.elements.button.className = 'chat-widget-button';
+            this.elements.button.className = 'cbw-chat-widget-button cbw-theme-transition';
             this.elements.button.innerHTML = `
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -52,32 +68,32 @@
 
             // Create chat panel
             this.elements.panel = document.createElement('div');
-            this.elements.panel.className = 'chat-widget-panel';
+            this.elements.panel.className = 'cbw-chat-widget-panel cbw-theme-transition';
             this.elements.panel.setAttribute('aria-hidden', 'true');
             this.elements.panel.setAttribute('role', 'dialog');
             this.elements.panel.setAttribute('aria-modal', 'true');
             this.elements.panel.innerHTML = `
-                <div class="chat-widget-header">
-                    <div class="chat-widget-logo">
+                <div class="cbw-chat-widget-header">
+                    <div class="cbw-chat-widget-logo">
                         ${this.options.siteName.charAt(0).toUpperCase()}
                     </div>
-                    <h3 class="chat-widget-title">Ask us anything</h3>
-                    <button class="chat-widget-phone" aria-label="Start voice call">
+                    <h3 class="cbw-chat-widget-title">Ask us anything</h3>
+                    <button class="cbw-chat-widget-phone" aria-label="Start voice call">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                         </svg>
                     </button>
                 </div>
-                <div class="chat-widget-messages" aria-live="polite"></div>
-                <div class="chat-widget-input-area">
-                    <form class="chat-widget-input-form">
+                <div class="cbw-chat-widget-messages cbw-theme-transition" aria-live="polite"></div>
+                <div class="cbw-chat-widget-input-area">
+                    <form class="cbw-chat-widget-input-form">
                         <textarea 
-                            class="chat-widget-input" 
+                            class="cbw-chat-widget-input cbw-theme-transition" 
                             placeholder="Type your message..."
                             rows="1"
                             aria-label="Message input"
                         ></textarea>
-                        <button type="submit" class="chat-widget-send" aria-label="Send message">
+                        <button type="submit" class="cbw-chat-widget-send" aria-label="Send message">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
                                 <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
@@ -88,11 +104,11 @@
             `;
 
             // Get element references
-            this.elements.messages = this.elements.panel.querySelector('.chat-widget-messages');
-            this.elements.input = this.elements.panel.querySelector('.chat-widget-input');
-            this.elements.form = this.elements.panel.querySelector('.chat-widget-input-form');
-            this.elements.sendButton = this.elements.panel.querySelector('.chat-widget-send');
-            this.elements.phoneButton = this.elements.panel.querySelector('.chat-widget-phone');
+            this.elements.messages = this.elements.panel.querySelector('.cbw-chat-widget-messages');
+            this.elements.input = this.elements.panel.querySelector('.cbw-chat-widget-input');
+            this.elements.form = this.elements.panel.querySelector('.cbw-chat-widget-input-form');
+            this.elements.sendButton = this.elements.panel.querySelector('.cbw-chat-widget-send');
+            this.elements.phoneButton = this.elements.panel.querySelector('.cbw-chat-widget-phone');
 
             // Append to body
             document.body.appendChild(this.elements.button);
@@ -148,16 +164,14 @@
             });
         }
 
-        // Update send button visual state based on input content
         updateSendButtonState() {
             const hasContent = this.elements.input.value.trim().length > 0;
-            this.elements.sendButton.classList.toggle('active', hasContent);
+            this.elements.sendButton.classList.toggle('cbw-active', hasContent);
         }
 
-        // Show/hide unread badge
         setUnreadBadge(show) {
             this.hasUnreadMessages = show;
-            this.elements.button.classList.toggle('has-unread', show);
+            this.elements.button.classList.toggle('cbw-has-unread', show);
         }
 
         toggleChat() {
@@ -170,7 +184,7 @@
 
         openChat() {
             this.isOpen = true;
-            this.elements.panel.classList.add('open');
+            this.elements.panel.classList.add('cbw-open');
             this.elements.panel.setAttribute('aria-hidden', 'false');
             
             // Clear unread badge when opening
@@ -184,7 +198,7 @@
 
         closeChat() {
             this.isOpen = false;
-            this.elements.panel.classList.remove('open');
+            this.elements.panel.classList.remove('cbw-open');
             this.elements.panel.setAttribute('aria-hidden', 'true');
         }
 
@@ -194,15 +208,15 @@
 
         addMessage(sender, content, isTyping = false) {
             const messageElement = document.createElement('div');
-            messageElement.className = `chat-widget-message ${sender}`;
+            messageElement.className = `cbw-chat-widget-message cbw-${sender}`;
             
             const avatar = sender === 'user' ? 'U' : 'A';
-            const bubbleClass = isTyping ? 'chat-widget-typing' : 'chat-widget-message-bubble';
+            const bubbleClass = isTyping ? 'cbw-chat-widget-typing' : 'cbw-chat-widget-message-bubble';
             const bubbleContent = isTyping ? this.createTypingIndicator() : content;
 
             messageElement.innerHTML = `
-                <div class="chat-widget-message-avatar">${avatar}</div>
-                <div class="${bubbleClass}">${bubbleContent}</div>
+                <div class="cbw-chat-widget-message-avatar cbw-theme-transition">${avatar}</div>
+                <div class="${bubbleClass} cbw-theme-transition">${bubbleContent}</div>
             `;
 
             this.elements.messages.appendChild(messageElement);
@@ -222,10 +236,52 @@
 
         createTypingIndicator() {
             return `
-                <div class="chat-widget-typing-dot"></div>
-                <div class="chat-widget-typing-dot"></div>
-                <div class="chat-widget-typing-dot"></div>
+                <div class="cbw-chat-widget-typing-dot"></div>
+                <div class="cbw-chat-widget-typing-dot"></div>
+                <div class="cbw-chat-widget-typing-dot"></div>
             `;
+        }
+
+        showErrorToast(message) {
+            if (this.errorToast) {
+                this.errorToast.remove();
+            }
+
+            this.errorToast = document.createElement('div');
+            this.errorToast.className = 'cbw-error-toast';
+            this.errorToast.textContent = message;
+            
+            this.elements.panel.appendChild(this.errorToast);
+            
+            // Show toast
+            setTimeout(() => {
+                this.errorToast.classList.add('cbw-show');
+            }, 100);
+
+            // Auto-hide after 4 seconds
+            setTimeout(() => {
+                if (this.errorToast) {
+                    this.errorToast.classList.remove('cbw-show');
+                    setTimeout(() => {
+                        if (this.errorToast) {
+                            this.errorToast.remove();
+                            this.errorToast = null;
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+
+        async loadStreamModule() {
+            if (!streamModule) {
+                try {
+                    streamModule = await import('./stream.js');
+                } catch (error) {
+                    console.error('Failed to load stream module:', error);
+                    throw error;
+                }
+            }
+            return streamModule;
         }
 
         async sendMessage() {
@@ -245,10 +301,16 @@
             this.typingElement = this.addMessage('assistant', '', true);
 
             try {
-                // Simulate API call - replace with actual implementation
+                // Load stream module lazily
+                const streamMod = await this.loadStreamModule();
+                const streamHandler = new streamMod.StreamHandler(this.options.streamEndpoint, this.sessionId);
+
+                // Simulate streaming for demo
                 await this.simulateApiCall(message);
             } catch (error) {
                 console.error('Chat API Error:', error);
+                this.showErrorToast('Something went wrong — retrying…');
+                
                 if (this.typingElement) {
                     this.typingElement.remove();
                     this.typingElement = null;
@@ -285,7 +347,7 @@
 
         async streamMessage(fullMessage) {
             const messageElement = this.addMessage('assistant', '');
-            const bubble = messageElement.querySelector('.chat-widget-message-bubble');
+            const bubble = messageElement.querySelector('.cbw-chat-widget-message-bubble');
             
             let currentText = '';
             const words = fullMessage.split(' ');
@@ -325,14 +387,14 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: var(--chat-accent);
+                background: var(--cbw-accent);
                 color: white;
                 padding: 12px 20px;
                 border-radius: 8px;
-                font-family: var(--chat-font);
+                font-family: var(--cbw-font);
                 font-size: 14px;
                 z-index: 1000000;
-                animation: slideInMessage 0.3s ease-out;
+                animation: cbw-slideInMessage 0.3s ease-out;
             `;
             notification.textContent = 'Voice call feature coming soon!';
             
